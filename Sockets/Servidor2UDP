@@ -1,0 +1,51 @@
+import java.net.*;
+
+public class Servidor2UDP {
+    public static void main(String[] args) {
+        int puerto = 5000;
+
+        try (DatagramSocket socket = new DatagramSocket(puerto)) {
+            System.out.println("Servidor UDP iniciado en el puerto " + puerto);
+
+            byte[] buffer = new byte[1024];
+
+            while (true) {
+                DatagramPacket paqueteRecibido = new DatagramPacket(buffer, buffer.length);
+                socket.receive(paqueteRecibido);
+
+                String datos = new String(paqueteRecibido.getData(), 0, paqueteRecibido.getLength());
+                System.out.println("Datos recibidos: " + datos);
+
+                String[] numerosStr = datos.split(",");
+                int[] numeros = new int[numerosStr.length];
+
+                for (int i = 0; i < numeros.length; i++) {
+                    numeros[i] = Integer.parseInt(numerosStr[i]);
+                }
+
+                int suma = 0, mayor = numeros[0], menor = numeros[0];
+
+                for (int i = 0; i < numeros.length; i++) {
+                    suma += numeros[i];
+                    if (numeros[i] > mayor) mayor = numeros[i];
+                    if (numeros[i] < menor) menor = numeros[i];
+                }
+
+                System.out.println("Suma: " + suma + ", Mayor: " + mayor + ", Menor: " + menor);
+
+                String respuesta = suma + "," + mayor + "," + menor;
+                byte[] respuestaBytes = respuesta.getBytes();
+
+                DatagramPacket paqueteRespuesta = new DatagramPacket(
+                        respuestaBytes, respuestaBytes.length,
+                        paqueteRecibido.getAddress(), paqueteRecibido.getPort()
+                );
+
+                socket.send(paqueteRespuesta);
+                System.out.println("Resultados enviados al cliente.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

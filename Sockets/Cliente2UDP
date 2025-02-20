@@ -1,0 +1,37 @@
+import java.net.*;
+import java.util.Random;
+
+public class Cliente2UDP {
+    public static void main(String[] args) {
+        String direccionServidor = "192.168.114.111";
+        int puerto = 5000;
+
+        try (DatagramSocket socket = new DatagramSocket()) {
+            Random random = new Random();
+            int[] numeros = new int[10];
+
+            StringBuilder datos = new StringBuilder();
+            for (int i = 0; i < 10; i++) {
+                numeros[i] = random.nextInt(100);
+                datos.append(numeros[i]).append(i < 9 ? "," : "");
+            }
+
+            byte[] buffer = datos.toString().getBytes();
+            DatagramPacket paquete = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(direccionServidor), puerto);
+            socket.send(paquete);
+
+            byte[] bufferRespuesta = new byte[1024];
+            DatagramPacket paqueteRespuesta = new DatagramPacket(bufferRespuesta, bufferRespuesta.length);
+            socket.receive(paqueteRespuesta);
+
+            String respuesta = new String(paqueteRespuesta.getData(), 0, paqueteRespuesta.getLength());
+            String[] resultados = respuesta.split(",");
+
+            System.out.println("Suma: " + resultados[0]);
+            System.out.println("Mayor: " + resultados[1]);
+            System.out.println("Menor: " + resultados[2]);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

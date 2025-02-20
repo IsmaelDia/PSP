@@ -1,0 +1,45 @@
+import java.io.*;
+import java.net.*;
+
+public class Servidor2TCP
+{
+    public static void main(String[] args) 
+    {
+      int puerto = 5000;
+      
+      try (ServerSocket serverSocket = new ServerSocket(puerto))
+      {
+        System.out.println("Servidor esperando conexiones" + puerto + "...");
+        while (true) 
+        {
+          Socket socket = serverSocket.accept();
+          System.out.println("Cliente conectado: " +socket.getInetAddress());
+
+
+          DataInputStream entrada = new DataInputStream(socket.getInputStream());   
+          int [] numero = new int[10];
+
+          for(int i = 0; i<10; i++)
+          {
+            numero[i] = entrada.readInt();
+          }
+
+          int suma = 0, mayor = numero[0], menor = numero[0];
+          
+
+          
+          DataOutputStream salida = new DataOutputStream(socket.getOutputStream());
+          salida.writeInt(suma);
+          salida.writeInt(mayor);
+          salida.writeInt(menor);
+
+          socket.close();
+          System.out.println("Resultados enviados al cliente");
+        }
+      }
+      catch(IOException e)
+      {
+        e.printStackTrace();
+      }
+    }
+}
